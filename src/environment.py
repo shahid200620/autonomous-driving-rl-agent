@@ -7,7 +7,7 @@ import random
 
 class CarRacingEnv(gym.Env):
 
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     def __init__(self, render_mode=None):
 
@@ -124,19 +124,29 @@ class CarRacingEnv(gym.Env):
 
     def render(self):
 
-        if self.render_mode != "human":
-            return
+    	if not hasattr(self, "screen"):
+        	pygame.init()
+        	self.screen = pygame.Surface((self.width, self.height))
 
-        self.screen.fill((30, 30, 30))
+    	surface = self.screen
 
-        for wall in self.walls:
-            pygame.draw.line(self.screen, (255,255,255), (wall[0],wall[1]), (wall[2],wall[3]), 3)
+    	surface.fill((30, 30, 30))
 
-        pygame.draw.circle(self.screen, (0,255,0), self.position.astype(int), 8)
+    	for wall in self.walls:
+        	pygame.draw.line(surface, (255,255,255), (wall[0],wall[1]), (wall[2],wall[3]), 3)
 
-        pygame.display.flip()
+    	pygame.draw.circle(surface, (0,255,0), self.position.astype(int), 8)
 
-        self.clock.tick(self.metadata["render_fps"])
+    	if self.render_mode == "human":
+        	if not pygame.display.get_init():
+            		pygame.display.init()
+            		self.window = pygame.display.set_mode((self.width, self.height))
+
+        	self.window.blit(surface, (0,0))
+        	pygame.display.flip()
+
+    	if self.render_mode == "rgb_array":
+        	return pygame.surfarray.array3d(surface)
 
     def close(self):
 

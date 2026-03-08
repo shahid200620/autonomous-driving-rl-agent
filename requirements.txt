@@ -7,3 +7,4 @@ torchaudio
 pyyaml
 numpy
 matplotlib
+moviepy
